@@ -1,1 +1,1 @@
-# The input files and analysis scripts used for the MD study on calcium binding and permeation in TRPV channels. The paper, entitled "Calcium binding and permeation in TRPV channels: insights from molecular dynamics simulations", is publsihed in JGP.
+The input files and analysis scripts used for the MD study on calcium binding and permeation in TRPV channels. The paper, entitled "Calcium binding and permeation in TRPV channels: insights from molecular dynamics simulations", is publsihed in JGP.
