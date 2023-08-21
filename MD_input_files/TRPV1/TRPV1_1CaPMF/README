@@ -1,3 +1,5 @@
+# Note: some script files are same as TRPV6 and are omitted in this directory
+
 # umbrella sampling, restrain initial coordinate at center, start from ion in solution
 # Prepare topologies and gro files, and rename gro files
 mv npt.gro npt_ori.gro
