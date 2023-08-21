@@ -1,0 +1,43 @@
+define                  = -DPOSRES_HELIX
+integrator              = md
+dt                      = 0.002
+nsteps                  = 50000
+nstxtcout               = 500
+nstvout                 = 0
+nstfout                 = 0
+nstcalcenergy           = 500
+nstenergy               = 500
+nstlog                  = 500
+;
+cutoff-scheme           = Verlet
+nstlist                 = 5
+rlist                   = 1.2
+vdwtype                 = Cut-off
+vdw-modifier            = Force-switch
+rvdw_switch             = 1.0
+rvdw                    = 1.2
+coulombtype             = PME
+rcoulomb                = 1.2
+;
+tcoupl                  = v-rescale
+tc_grps                 = PROT MEMB SOL_ION
+tau_t                   = 0.5	0.5	0.5
+ref_t                   = 310.15 	310.15	310.15
+;
+pcoupl                  = Parrinello-Rahman
+pcoupltype              = semiisotropic
+tau_p                   = 5.0
+compressibility         = 4.5e-5  4.5e-5
+ref_p                   = 1.0     1.0
+refcoord_scaling        = com
+;
+constraints             = h-bonds
+constraint_algorithm    = LINCS
+;
+gen-vel                 = yes
+gen-temp                = 310
+gen-seed                = -1
+;
+nstcomm                 = 1
+comm_mode               = linear
+comm-grps               = System

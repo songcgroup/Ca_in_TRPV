@@ -1,0 +1,26 @@
+# umbrella sampling, restrain initial coordinate at center, start from ion in solution
+# Prepare topologies and gro files, and rename gro files
+mv npt.gro npt_ori.gro
+mv step5_input_cam.gro step5_input_cam_ori.gro
+# 1. Create camr.itp file (restrained CAM molecule) (change molecule name and res. name; edit position restraints(r=5A))
+# 2. Change top and gro files
+python setInitialCAM.py # set ion to proper initial position 
+python changeCAMName.py  -i 126234
+# manually edit top file: 1) #include "./toppar/camr.itp" 2) edit [molecules] part
+# 3. edit the reference gro for restraints: change (x,y) of pulled ion to central position   (x=5.65 nm, y=5.58 nm)
+python changeCAMRefPos.py -i 126234
+# manually change index in .ndx file
+
+# energy minimization for exchanged
+gmx grompp -f minimization.mdp -c npt_exchange.gro -r step5_input_cam.gro  -p topol.top -n index_pull1.ndx -o minimization.tpr -maxwarn 2
+gmx mdrun -v -deffnm minimization
+# NPT 0.1 ns
+gmx grompp -f npt.mdp -c minimization.gro -r step5_input_cam.gro  -p topol.top -n index_pull1.ndx -o npt2.tpr -maxwarn 3
+gmx mdrun -nt 12 -v -deffnm npt2
+
+
+
+tar -zcvf TRPV1_1CaPMF.tar.gz *.py  *.mdp topol.top step5_input_cam.gro minimization.gro index_pull1.ndx README toppar
+
+
+
