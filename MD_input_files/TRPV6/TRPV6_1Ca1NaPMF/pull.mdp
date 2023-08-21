@@ -1,0 +1,65 @@
+define                  = -DPOSRES_HELIX
+integrator              = md
+dt                      = 0.002
+nsteps                  = 350000
+nstxout                 = 0
+nstvout                 = 0
+nstfout                 = 0
+nstxtcout               = 50
+nstcalcenergy           = 50
+nstenergy               = 50
+nstlog                  = 50
+;
+cutoff-scheme           = Verlet
+nstlist                 = 5
+rlist                   = 1.2
+vdwtype                 = Cut-off
+vdw-modifier            = Force-switch
+rvdw_switch             = 1.0
+rvdw                    = 1.2
+coulombtype             = PME
+rcoulomb                = 1.2
+;
+tcoupl                  = v-rescale
+tc_grps                 = PROT MEMB SOL_ION
+tau_t                   = 0.5	0.5	0.5
+ref_t                   = 310.15 	310.15	310.15
+;
+pcoupl                  = Parrinello-Rahman
+pcoupltype              = semiisotropic
+tau_p                   = 5.0
+compressibility         = 4.5e-5  4.5e-5
+ref_p                   = 1.0     1.0
+refcoord_scaling        = com
+;
+constraints             = h-bonds
+constraint_algorithm    = LINCS
+continuation            = no
+;
+gen_vel                 = yes
+gen_temp                = 310.15
+;
+nstcomm                 = 1
+comm_mode               = linear
+comm-grps               = System
+;
+pull                 	= yes
+pull_ncoords         	= 1
+pull_ngroups         	= 2
+pull_group1_name     	= pull_ion
+pull_group2_name     	= PROT
+pull_coord1_type     	= umbrella
+pull_coord1_geometry 	= direction
+pull_coord1_dim      	= N N Y 		; pull along z
+pull_coord1_groups      = 1 2
+pull_coord1_start       = yes       ; define initial COM distance > 0
+pull_coord1_vec      	= 0 0 -1	    ; upward
+pull_coord1_rate      	= 0.01		; 0.005 nm/ps = 5 nm/ns
+pull_coord1_k         	= 1000		; kJ/mol/nm2
+pull_group2_pbcatom   	= 1
+pull-pbc-ref-prev-step-com = yes
+
+
+
+
+

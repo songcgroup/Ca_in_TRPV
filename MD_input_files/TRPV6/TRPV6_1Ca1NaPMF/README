@@ -1,0 +1,62 @@
+# umbrella sampling, restrain initial coordinate at center, start from ion in solution
+# sampling only pore region of TRPV6, one add cylinder restraint, one not
+
+# Prepare topologies and gro files
+cd ..
+cp -r npt.gro step5_input_cam.gro topol.top toppar index.ndx umbrella_sampling_cylin_up/
+cd umbrella_sampling_cylin_up
+mv npt.gro npt_ori.gro
+mv step5_input_cam.gro step5_input_cam_ori.gro
+
+# place one Na to SF (z=68)
+python setSODToSF.py
+# index 66187
+
+# add restraints to this SOD: edit itp file
+# modify reference gro
+python changeSODRefPosZ.py -i 66187   # position z -> 68
+
+
+# energy minimization
+gmx grompp -f minimization.mdp -c npt_exchange1_ori.gro -r step5_input_cam_ori.gro  -p topol.top -n index.ndx -o minimization.tpr -maxwarn 2
+gmx mdrun -v -deffnm minimization
+# npt
+gmx grompp -f npt.mdp -c minimization.gro -r step5_input_cam_ori.gro  -p topol.top -n index.ndx -o npt.tpr -maxwarn 3
+gmx mdrun -v -deffnm npt
+
+mv npt.gro npt_ori.gro
+
+
+# 1. Create camr.itp file (restrained CAM molecule) (change molecule name and res. name; edit position restraints(r=5A))
+# 2. Change top and gro files
+python setInitialCAM.py # set ion to proper initial position 
+python changeCAMName.py  -i 66188
+# manually edit top file: 1) #include "./toppar/camr.itp" 2) edit [molecules] part
+# 3. edit the reference gro for restraints: change (x,y) of pulled ion to central position   (x=6.51 nm, y=6.51 nm)
+python changeCAMRefPos.py -i 66188
+# manually change index in .ndx file
+
+# energy minimization for exchanged
+gmx grompp -f minimization.mdp -c npt_exchange.gro -r step5_input_cam.gro  -p topol.top -n index_pull1.ndx -o minimization.tpr -maxwarn 2
+gmx mdrun -v -deffnm minimization
+
+# pull upward
+gmx grompp -f pull.mdp -c minimization.gro -r step5_input_cam.gro  -p topol.top -n index_pull1.ndx -o pull.tpr -maxwarn 3
+gmx mdrun -nt 10 -v -deffnm pull
+
+
+# get deviations and extract frames
+python select_configurations.py
+mkdir confs
+python extract_gro_frames.py -s pull.tpr -f pull.xtc
+
+# start z = -3.00 nm, end z = 1.40 nm, step = 0.05 nm
+
+
+
+# pack the input files
+tar -zcvf TRPV6_PMF.tar.gz *.py *.sh *.mdp topol.top step5_input_cam.gro minimization.gro index_pull1.ndx README toppar
+
+
+
+
