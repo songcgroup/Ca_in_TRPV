@@ -1,4 +1,5 @@
-# Note: some script files are same as TRPV6 and are omitted in this directory
+# Note: some script files are same as TRPV6 and are omitted in this directory. For compelete workflow, please refer to TRPV6
+/TRPV6_1CaPMF/.
 
 # umbrella sampling, restrain initial coordinate at center, start from ion in solution
 # Prepare topologies and gro files, and rename gro files
