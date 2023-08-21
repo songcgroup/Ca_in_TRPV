@@ -1,0 +1,82 @@
+# umbrella sampling, restrain initial coordinate at center, start from ion in solution
+# Prepare topologies and gro files
+cd ..
+cp -r npt.gro step5_input_cam.gro topol.top toppar index.ndx umbrella_sampling_cylin_up/
+mv npt.gro npt_ori.gro
+mv step5_input_cam.gro step5_input_cam_ori.gro
+# 1. Create camr.itp file (restrained CAM molecule) (change molecule name and res. name; edit position restraints(r=5A))
+# 2. Change top and gro files
+python setInitialCAM.py # set ion to proper initial position 
+python changeCAMName.py  -i 66187
+# manually edit top file: 1) #include "./toppar/camr.itp" 2) edit [molecules] part
+# 3. edit the reference gro for restraints: change (x,y) of pulled ion to central position   (x=6.51 nm, y=6.51 nm)
+python changeCAMRefPos.py -i 66187
+# manually change index in .ndx file
+
+# energy minimization for exchanged
+gmx grompp -f minimization.mdp -c npt_exchange.gro -r step5_input_cam.gro  -p topol.top -n index_pull1.ndx -o minimization.tpr -maxwarn 2
+gmx mdrun -v -deffnm minimization
+
+# pull upward
+# probably failed because of boundary problem in pulling, if failed, try again
+gmx grompp -f pull.mdp -c minimization.gro -r step5_input_cam.gro  -p topol.top -n index_pull1.ndx -o pull.tpr -maxwarn 3
+gmx mdrun -nt 10 -v -deffnm pull
+
+
+# delete last line of 'pull_pullx.xvg' file
+python deleteLastLine.py
+
+# get deviations and extract frames
+python select_configurations.py
+mkdir confs
+python extract_gro_frames.py -s pull.tpr -f pull.xtc
+
+# start z = -5.20 nm, end z = 5.30 nm, step = 0.10 nm
+
+
+# read frames, create directories, and do umbrella sampling in each directory
+file="selected_frames.txt"
+ind=0
+gpu_id=1
+bash umbrellaSampling.sh $file $ind $gpu_id
+
+
+# analysis
+mkdir analysis
+cp conf*/umbrella*.tpr conf*/umbrella*pullf.xvg analysis/
+cd analysis
+num=`ls umbrella*.tpr|wc --lines`
+python ../summaryFileNames.py -n ${num}
+gmx wham -it tpr-files.dat -if pullf-files.dat -o -hist -unit kJ -cycl -min -5.1 -max 5.2 -temp 310.15
+cd ..
+
+# extract more frames
+python select_configurations_more.py
+python extract_gro_frames_more.py -s pull.tpr -f pull.xtc
+
+# simulate in PKUHPC, cn-short nodes
+# read frames, create directories, and do umbrella sampling in each directory
+file="selected_frames_more.txt"
+ind=$num
+bash umbrellaSampling.sh $file $ind  $gpu_id
+
+
+# analysis
+cp conf*/umbrella*.tpr conf*/umbrella*pullf.xvg analysis/
+cd analysis
+num=`ls umbrella*.tpr|wc --lines`
+python ../summaryFileNames.py -n ${num}
+gmx wham -it tpr-files.dat -if pullf-files.dat -o -hist -unit kJ -cycl -min -5.1 -max 5.2 -temp 310.15
+cd ..
+
+
+cd ~/Desktop/ion_channels/TRPV6/TRPV6_1CAM/umbrella_sampling_cylin_up/analysis
+num=`ls umbrella*.tpr|wc --lines`
+python ../summaryFileNames.py -n ${num}
+gmx wham -it tpr-files.dat -if pullf-files.dat -o -hist -unit kJ -cycl -min -5.1 -max 5.2 -temp 310.15 -bsres -nBootstrap 100
+
+
+# pack the input files
+
+
+

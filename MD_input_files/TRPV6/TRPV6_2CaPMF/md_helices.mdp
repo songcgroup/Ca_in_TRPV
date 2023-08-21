@@ -1,0 +1,160 @@
+;
+;	File 'mdout.mdp' was generated
+;	By user: unknown (1000)
+;	On host: sagittarius
+;	At date: Mon Sep 17 11:32:26 2018
+
+;
+
+; VARIOUS PREPROCESSING OPTIONS
+; e.g.: -DPOSRES -DFLEXIBLE (note these variable names are case sensitive)
+define                   = -DPOSRES_HELIX
+
+; RUN CONTROL PARAMETERS
+integrator               = md
+; Start time and timestep in ps
+tinit                    = 0
+dt                       = 0.002       ;2fs
+nsteps                   = 250000000     ;500ns
+; For exact run continuation or redoing part of a run
+init-step                = 0
+; Part index is updated automatically on checkpointing (keeps files separate)
+simulation-part          = 1
+; mode for center of mass motion removal
+comm-mode                = Linear
+; number of steps for center of mass motion removal
+nstcomm                  = 1
+; group(s) for center of mass motion removal
+comm-grps                = System
+
+
+; OUTPUT CONTROL OPTIONS
+; Output frequency for coords (x), velocities (v) and forces (f)
+nstxout                  = 0
+nstvout                  = 0
+nstfout                  = 0
+; Output frequency for energies to log file and energy file
+nstlog                   = 5000
+nstcalcenergy            = 100
+nstenergy                = 5000
+; Output frequency and precision for .xtc file
+nstxout-compressed       = 20000 ; save coordinate every 40ps
+compressed-x-precision   = 1000
+; This selects the subset of atoms for the compressed
+; trajectory file. You can select multiple groups. By
+; default, all atoms will be written.
+compressed-x-grps        = 
+; Selection of energy groups
+energygrps               = 
+
+; NEIGHBORSEARCHING PARAMETERS
+; cut-off scheme (Verlet: particle based cut-offs, group: using charge groups)
+cutoff-scheme            = Verlet
+; nblist update frequency
+nstlist                  = 5
+; ns algorithm (simple or grid)
+ns_type                  = grid
+; Periodic boundary conditions: xyz, no, xy
+pbc                      = xyz
+periodic-molecules       = no
+; Allowed energy error due to the Verlet buffer in kJ/mol/ps per atom,
+; a value of -1 means: use rlist
+verlet-buffer-tolerance  = 0.005
+; nblist cut-off        
+rlist                    = 1.2
+; long-range cut-off for switched potentials
+rlistlong                = -1
+nstcalclr                = -1
+
+; OPTIONS FOR ELECTROSTATICS AND VDW
+; Method for doing electrostatics
+coulombtype              = PME
+coulomb-modifier         = Potential-shift-Verlet
+rcoulomb-switch          = 0
+rcoulomb                 = 1.2
+; Relative dielectric constant for the medium and the reaction field
+epsilon-r                = 1
+epsilon-rf               = 0
+; Method for doing Van der Waals
+vdw-type                 = Cut-off
+vdw-modifier             = force-switch
+; cut-off lengths       
+rvdw-switch              = 1.0
+rvdw                     = 1.2
+; Apply long range dispersion corrections for Energy and Pressure
+DispCorr                 = no
+; Extension of the potential lookup tables beyond the cut-off
+table-extension          = 1
+; Separate tables between energy group pairs
+energygrp-table          = 
+; Spacing for the PME/PPPM FFT grid
+fourierspacing           = 0.12
+; FFT grid size, when a value is 0 fourierspacing will be used
+fourier-nx               = 0
+fourier-ny               = 0
+fourier-nz               = 0
+; EWALD/PME/PPPM parameters
+pme_order                = 4
+ewald-rtol               = 1e-05
+ewald-rtol-lj            = 0.001
+lj-pme-comb-rule         = Geometric
+ewald-geometry           = 3d
+epsilon-surface          = 0
+
+; OPTIONS FOR WEAK COUPLING ALGORITHMS
+; Temperature coupling  
+tcoupl                   = V-rescale
+nsttcouple               = -1
+nh-chain-length          = 10
+print-nose-hoover-chain-variables = no
+; Groups to couple separately
+tc-grps                  = PROT MEMB SOL_ION
+; Time constant (ps) and reference temperature (K)
+tau_t                    = 0.5	0.5	0.5
+ref_t                    = 310.15 	310.15	310.15
+; pressure coupling     
+pcoupl                   = Parrinello-Rahman
+pcoupltype               = semiisotropic
+nstpcouple               = -1
+; Time constant (ps), compressibility (1/bar) and reference P (bar)
+tau_p                    = 5.0
+compressibility          = 4.5e-5	4.5e-5
+ref_p                    = 1.0	1.0
+; Scaling of reference coordinates, No, All or COM
+refcoord-scaling         = com
+
+
+; GENERATE VELOCITIES FOR STARTUP RUN
+gen_vel                  = no
+gen-temp                 = 300
+gen-seed                 = -1
+
+; OPTIONS FOR BONDS    
+constraints              = h-bonds
+; Type of constraint algorithm
+constraint_algorithm     = lincs
+; Do not constrain the start configuration
+continuation             = yes
+; Use successive overrelaxation to reduce the number of shake iterations
+Shake-SOR                = no
+; Relative tolerance of shake
+shake-tol                = 0.0001
+; Highest order in the expansion of the constraint coupling matrix
+lincs_order              = 4
+; Number of iterations in the final step of LINCS. 1 is fine for
+; normal simulations, but use 2 to conserve energy in NVE runs.
+; For energy minimization with constraints it should be 4 to 8.
+lincs_iter               = 1
+; Lincs will write a warning to the stderr if in one step a bond
+; rotates over more degrees than
+lincs-warnangle          = 30
+
+; Electric fields
+; Format is number of terms (int) and for all terms an amplitude (real)
+; and a phase angle (real)
+; Time dependent (pulsed) electric field. Format is omega, time for pulse
+; peak, and sigma (width) for pulse. Sigma = 0 removes pulse, leaving
+; the field to be a cosine function.
+electric-field-x         =
+electric-field-y         =
+electric-field-z         = -0.051 0 0 0
